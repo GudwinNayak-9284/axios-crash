@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestApi integration</title>
+</head>
+<body>
+    <form onsubmit="saveToLocalStorage(event)">
+        <label>selling price:</label>
+        <input type="number" name="price"  required/>
+        <label>product name</label>
+        <input type="text" name="product"  required/>
+        <button> Submit </button>
+    </form>
+    <ul id='listOfitems'></ul> 
+    <ul id="priceOfproduct"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.6/axios.min.js"
+    integrity="sha512-RUkwGPgBmjCwqXpCRzpPPmGl0LSFp9v5wXtmG41+OS8vnmXybQX5qiG5adrIhtO03irWCXl+z0Jrst6qeaLDtQ=="
+     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+     <script>
+        function saveToLocalStorage(event) {
+                event.preventDefault();
+                const price = event.target.price.value;
+                const product = event.target.product.value;
+               
+                const obj = {
+                  price,
+                  product
+                }
+                axios.post("https://crudcrud.com/api/e1b36991021744f6b7164882318dfc17/productList",obj)
+                .then((res)=>{
+                  console.log(res)
+                }).catch((err)=>{
+                  console.log(err)
+                })
+                localStorage.setItem(obj.product, JSON.stringify(obj))
+                showListofRegisteredUser(obj)
+            }
+
+            window.addEventListener('DOMContentLoaded', (event) => {
+                Object.keys(localStorage).forEach(key => {
+                    const user = JSON.parse(localStorage.getItem(key))
+                    showListofRegisteredUser(user)
+                    showProductPrice(user)
+                })
+            })
+            function showProductPrice(user){
+                const productPrice=document.getElementById("priceOfproduct");
+                const showPrice=`<ul id="${user.product}">total value of worth product: ${user.price}</ul>`
+
+                productPrice.innerHTML+=showPrice;
+            }
+            function showListofRegisteredUser(user){
+                const parentNode = document.getElementById('listOfitems');
+                const createNewUserHtml = `<li id='${user.product}'>${user.price} - ${user.product} - 
+                                                <button onclick=deleteUser('${user.product}')>Delete</button>
+                                            </li>
+                                            `
+                console.log(createNewUserHtml)
+                parentNode.innerHTML +=  createNewUserHtml;
+                console.log(parentNode.innerHTML)
+            }
+
+            function deleteUser(product) {
+                localStorage.removeItem(product)
+                removeItemFromScreen(product)
+                
+            }
+
+            function removeItemFromScreen(product){
+                const parentNode = document.getElementById('listOfitems');
+                const elem = document.getElementById(product)
+                parentNode.removeChild(elem);
+            }
+     </script>
+</body>
+</html>
